@@ -2,15 +2,19 @@ import { useState } from 'react';
 import { createEntry } from '../../api/entries';
 import { Failed, Success } from '../../helpers/popup';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentDate } from '../../helpers/currentDate';
 
 const EntryForm = () => {
+  
+
   const [formData, setFormData] = useState({
-    date: '',
+    date: getCurrentDate(), // Default to current date
     card: '',
     consignee: '',
     remark: '',
     amount: ''
   });
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,7 +22,7 @@ const EntryForm = () => {
     try {
       await createEntry(formData);
       setFormData({
-        date: '',
+        date: getCurrentDate(), // Reset to current date
         card: '',
         consignee: '',
         remark: '',
