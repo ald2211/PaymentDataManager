@@ -1,31 +1,32 @@
 import { useState, useEffect } from 'react';
 import { convertToExcel, deleteAnEntry, fetchAllEntries, updateAnEntry } from '../../api/entries';
+import { fetchAllCards } from '../../api/cards';
 import { ClipLoader } from 'react-spinners';
 import { formatDate } from '../../helpers/formatDate';
 import { Failed, Success } from '../../helpers/popup';
 
 const EntriesList = () => {
   const [entries, setEntries] = useState([]);
+  const [cards, setCards] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [updatingEntry, setUpdatingEntry] = useState(null);
   const [updateLoading, setUpdateLoading] = useState(false);
 
-  const cardOptions = [
-    'ADCB',
-    'CITY',
-    'ASEEL',
-    'NBD',
-    'RAK RED',
-    'RAK TITANIUM',
-    'SHARJH ISLAMIC',
-    'OTHER',
-  ];
-
   useEffect(() => {
     fetchEntries();
+    fetchCards();
   }, []);
+
+  const fetchCards = async () => {
+    try {
+      const response = await fetchAllCards();
+      setCards(response.data || []);
+    } catch (error) {
+      console.error('Error fetching cards:', error);
+    }
+  };
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -179,9 +180,14 @@ const EntriesList = () => {
                 className="w-full mb-3 p-2 border rounded"
                 required
               >
-                {cardOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
+                <option value="" disabled>Select a Card</option>
+                {/* Ensure existing selected value is present even if deleted/legacy */}
+                {updatingEntry.card && !cards.some((c) => c.name === updatingEntry.card) && (
+                  <option value={updatingEntry.card}>{updatingEntry.card} (legacy)</option>
+                )}
+                {cards.map((c) => (
+                  <option key={c._id || c.name} value={c.name}>
+                    {c.name}
                   </option>
                 ))}
               </select>

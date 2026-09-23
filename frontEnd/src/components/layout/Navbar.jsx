@@ -44,6 +44,12 @@ export const Navbar = () => {
               New Entry
             </button>
             <button
+              onClick={() => navigate("/cards")}
+              className="px-4 py-2 text-black hover:text-gray-600 transition duration-200"
+            >
+              Cards
+            </button>
+            <button
               onClick={handleLogout}
               className="px-4 py-2 border border-black rounded hover:bg-black hover:text-white transition duration-200"
             >
@@ -100,12 +106,21 @@ export const Navbar = () => {
             </button>
             <button
               onClick={() => {
-                navigate("/events/new");
+                navigate("/entry/new");
                 toggleMobileMenu();
               }}
               className="block w-full text-left px-4 py-2 text-black hover:bg-gray-100 rounded transition duration-200"
             >
-              Create Event
+              New Entry
+            </button>
+            <button
+              onClick={() => {
+                navigate("/cards");
+                toggleMobileMenu();
+              }}
+              className="block w-full text-left px-4 py-2 text-black hover:bg-gray-100 rounded transition duration-200"
+            >
+              Cards
             </button>
             <button
               onClick={() => {

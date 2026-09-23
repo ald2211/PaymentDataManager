@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createEntry } from '../../api/entries';
+import { fetchAllCards } from '../../api/cards';
 import { Failed, Success } from '../../helpers/popup';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getCurrentDate } from '../../helpers/currentDate';
 
 const EntryForm = () => {
-  
+  const [cards, setCards] = useState([]);
+  const [loadingCards, setLoadingCards] = useState(false);
 
   const [formData, setFormData] = useState({
     date: getCurrentDate(), // Default to current date
@@ -16,6 +18,21 @@ const EntryForm = () => {
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadCards = async () => {
+      setLoadingCards(true);
+      try {
+        const response = await fetchAllCards();
+        setCards(response.data || []);
+      } catch (error) {
+        console.error('Error loading cards:', error);
+      } finally {
+        setLoadingCards(false);
+      }
+    };
+    loadCards();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,17 +79,26 @@ const EntryForm = () => {
           onChange={handleChange}
           className="w-full p-2 border rounded"
           required
+          disabled={loadingCards}
         >
-          <option value="" disabled>Select a Card</option>
-          <option value="ADCB">ADCB</option>
-          <option value="CITY">CITY</option>
-          <option value="ASEEL">ASEEL</option>
-          <option value="NBD">NBD</option>
-          <option value="RAK RED">RAK RED</option>
-          <option value="RAK TIANIUM">RAK TIANIUM</option>
-          <option value="SHARJH ISLAMIC">SHARJH ISLAMIC</option>
-          <option value="OTHER">OTHER</option>
+          <option value="" disabled>
+            {loadingCards ? 'Loading cards...' : 'Select a Card'}
+          </option>
+          {cards.map((c) => (
+            <option key={c._id || c.name} value={c.name}>
+              {c.name}
+            </option>
+          ))}
         </select>
+        {cards.length === 0 && !loadingCards && (
+          <p className="text-xs text-amber-600 mt-1">
+            No cards available.{' '}
+            <Link to="/cards" className="underline font-medium">
+              Manage Cards
+            </Link>{' '}
+            to add one.
+          </p>
+        )}
       </div>
       <div className="mb-4">
         <input
