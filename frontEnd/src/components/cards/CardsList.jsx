@@ -7,6 +7,15 @@ import {
 } from "../../api/cards";
 import { ClipLoader } from "react-spinners";
 import { Failed, Success } from "../../helpers/popup";
+import {
+  FiCreditCard,
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiCalendar,
+  FiX,
+  FiCheck,
+} from "react-icons/fi";
 
 const CardsList = () => {
   const [cards, setCards] = useState([]);
@@ -103,44 +112,74 @@ const CardsList = () => {
     }
   };
 
+  // Card badge color helper
+  const getCardBadgeStyle = (cardName) => {
+    const hash = (cardName || "")
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = [
+      "bg-indigo-50 text-indigo-700 border-indigo-200",
+      "bg-emerald-50 text-emerald-700 border-emerald-200",
+      "bg-sky-50 text-sky-700 border-sky-200",
+      "bg-purple-50 text-purple-700 border-purple-200",
+      "bg-amber-50 text-amber-700 border-amber-200",
+      "bg-rose-50 text-rose-700 border-rose-200",
+      "bg-teal-50 text-teal-700 border-teal-200",
+    ];
+    return colors[hash % colors.length];
+  };
+
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+    <div className="space-y-5 sm:space-y-6 max-w-4xl mx-auto animate-fadeIn w-full">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b pb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 pb-2 border-b border-slate-200">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Card Management</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Add, update, or remove payment cards available across the application.
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900">
+            Card Management
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Manage custom payment cards available across entry forms.
           </p>
         </div>
-        <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm font-semibold">
-          Total Cards: {cards.length}
+        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1 rounded-full text-xs font-semibold shadow-2xs">
+          <FiCreditCard className="w-3.5 h-3.5" />
+          <span>{cards.length} Cards</span>
         </div>
       </div>
 
       {/* Add New Card Form */}
-      <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 mb-6">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">
-          Add New Card
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+        <h3 className="text-xs sm:text-sm font-semibold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+          <FiPlus className="w-4 h-4 text-indigo-600" />
+          <span>Add New Card</span>
         </h3>
-        <form onSubmit={handleAddCard} className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            placeholder="Enter card name (e.g. ADCB, VISA, HDFC)"
-            value={newCardName}
-            onChange={(e) => setNewCardName(e.target.value)}
-            className="flex-1 p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            required
-          />
+        <form
+          onSubmit={handleAddCard}
+          className="flex flex-col sm:flex-row gap-2.5 sm:gap-3"
+        >
+          <div className="relative flex-1">
+            <FiCreditCard className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="e.g. ADCB, VISA Corporate, Emirates Islamic"
+              value={newCardName}
+              onChange={(e) => setNewCardName(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 sm:py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition"
+              required
+            />
+          </div>
           <button
             type="submit"
             disabled={addingCard || !newCardName.trim()}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded font-medium hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center min-w-[120px]"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm shadow-indigo-600/20 transition disabled:opacity-50 min-w-[110px]"
           >
             {addingCard ? (
-              <ClipLoader size={18} color="#ffffff" />
+              <ClipLoader size={15} color="#ffffff" />
             ) : (
-              "+ Add Card"
+              <>
+                <FiPlus className="w-4 h-4" />
+                <span>Add Card</span>
+              </>
             )}
           </button>
         </form>
@@ -148,93 +187,181 @@ const CardsList = () => {
 
       {/* Loading Spinner */}
       {loading && (
-        <div className="flex justify-center py-10">
-          <ClipLoader size={40} color="#2563eb" />
+        <div className="flex justify-center py-16">
+          <ClipLoader size={44} color="#4f46e5" />
         </div>
       )}
 
-      {/* Cards Table */}
+      {/* Cards Display */}
       {!loading && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <>
           {cards.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-lg">No cards found.</p>
-              <p className="text-sm mt-1">
-                Add your first card above to get started.
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center shadow-xs">
+              <div className="w-14 h-14 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 mb-3">
+                <FiCreditCard className="w-7 h-7" />
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800">
+                No cards configured yet
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+                Add your payment cards above to select them when recording transactions.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      #
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Card Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Created At
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {cards.map((card, index) => (
-                    <tr
-                      key={card._id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-semibold text-gray-900 bg-gray-100 px-2.5 py-1 rounded text-sm">
-                          {card.name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {card.createdAt
-                          ? new Date(card.createdAt).toLocaleDateString()
-                          : "—"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button
-                          onClick={() => setUpdatingCard(card)}
-                          className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded mr-2 transition"
+            <>
+              {/* MOBILE VIEW (< md): Cards List without Horizontal Overflow */}
+              <div className="block md:hidden space-y-2.5">
+                {cards.map((card, index) => (
+                  <div
+                    key={card._id}
+                    className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xs font-mono text-slate-400 w-5 shrink-0">
+                        {(index + 1).toString().padStart(2, "0")}
+                      </span>
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-bold border truncate ${getCardBadgeStyle(
+                          card.name
+                        )}`}
+                      >
+                        {card.name}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setUpdatingCard(card)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition text-xs font-medium flex items-center gap-1"
+                      >
+                        <FiEdit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(card._id)}
+                        disabled={deletingId === card._id}
+                        className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition disabled:opacity-50"
+                        title="Delete card"
+                      >
+                        {deletingId === card._id ? (
+                          <ClipLoader size={14} color="#e11d48" />
+                        ) : (
+                          <FiTrash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* DESKTOP VIEW (>= md): Full Table */}
+              <div className="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div className="overflow-x-auto w-full">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">
+                          #
+                        </th>
+                        <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Card Name
+                        </th>
+                        <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Created Date
+                        </th>
+                        <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider w-32">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {cards.map((card, index) => (
+                        <tr
+                          key={card._id}
+                          className="hover:bg-slate-50/70 transition-colors"
                         >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(card._id)}
-                          disabled={deletingId === card._id}
-                          className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition disabled:opacity-50"
-                        >
-                          {deletingId === card._id ? "Deleting..." : "Delete"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-400 font-mono">
+                            {(index + 1).toString().padStart(2, "0")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getCardBadgeStyle(
+                                card.name
+                              )}`}
+                            >
+                              {card.name}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            <div className="flex items-center gap-1.5">
+                              <FiCalendar className="w-3.5 h-3.5 text-slate-400" />
+                              <span>
+                                {card.createdAt
+                                  ? new Date(card.createdAt).toLocaleDateString(
+                                      undefined,
+                                      {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      }
+                                    )
+                                  : "—"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                onClick={() => setUpdatingCard(card)}
+                                className="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition"
+                                title="Edit card"
+                              >
+                                <FiEdit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(card._id)}
+                                disabled={deletingId === card._id}
+                                className="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition disabled:opacity-50"
+                                title="Delete card"
+                              >
+                                {deletingId === card._id ? (
+                                  <ClipLoader size={14} color="#e11d48" />
+                                ) : (
+                                  <FiTrash2 className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
-        </div>
+        </>
       )}
 
       {/* Edit Modal */}
       {updatingCard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 animate-fadeIn">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Edit Card
-            </h3>
-            <form onSubmit={handleUpdate}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 animate-scaleUp border border-slate-100 my-auto max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+                <FiCreditCard className="w-5 h-5 text-indigo-600" />
+                <span>Edit Card</span>
+              </h3>
+              <button
+                onClick={() => setUpdatingCard(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   Card Name
                 </label>
                 <input
@@ -243,25 +370,25 @@ const CardsList = () => {
                   onChange={(e) =>
                     setUpdatingCard({ ...updatingCard, name: e.target.value })
                   }
-                  className="w-full p-2.5 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full p-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none transition"
                   placeholder="Card Name"
                   required
                   autoFocus
                 />
               </div>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-2.5 sm:gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setUpdatingCard(null)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded font-medium transition"
+                  className="px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
                   disabled={updateLoading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2.5 text-xs sm:text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm shadow-indigo-600/20 transition disabled:opacity-50 flex items-center gap-2"
                   disabled={updateLoading || !updatingCard.name.trim()}
                 >
                   {updateLoading ? (
@@ -270,7 +397,10 @@ const CardsList = () => {
                       <span>Saving...</span>
                     </>
                   ) : (
-                    "Save Changes"
+                    <>
+                      <FiCheck className="w-4 h-4" />
+                      <span>Save Changes</span>
+                    </>
                   )}
                 </button>
               </div>
