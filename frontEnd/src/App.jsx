@@ -7,6 +7,7 @@ import { LoginPage } from "./pages/LoginPage";
 import Dashboard from "./pages/DashboardPage";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import AddEntry from "./pages/AddEntry";
+import CardsPage from "./pages/CardsPage";
 
 const App = () => {
   return (
@@ -18,8 +19,8 @@ const App = () => {
       </Route>
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
-
         <Route path="/entry/new" element={<AddEntry />} />
+        <Route path="/cards" element={<CardsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

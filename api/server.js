@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import authRouter from './routes/auth.route.js'
 import entryRouter from './routes/details.route.js'
+import cardRouter from './routes/card.route.js'
 import connectDB from './config/dbConnection.js'
 import path from 'path'
 import cors from 'cors'
@@ -21,6 +22,7 @@ app.use(express.json())
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/entries', entryRouter)
+app.use('/api/v1/cards', cardRouter)
 
 //-------------deployment--------------//
 app.use(express.static(path.join(__dirname, 'frontEnd/dist')))
